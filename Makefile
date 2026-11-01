@@ -1,5 +1,5 @@
 NAME = codexion
-CC = gcc
+CC = cc
 CFLAGS = -Wall -Wextra -Werror -pthread
 SRC = main.c parse.c
 OBJ = $(SRC:.c=.o)
@@ -10,13 +10,13 @@ $(NAME): $(OBJ)
 	$(CC) $(CFLAGS) $(OBJ) -o $(NAME)
 
 %.o: %.c codexion.h
-	$(CC) $(CFLAGS) -c $< -o $@
+	@$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(OBJ)
+	@rm -f $(OBJ)
 
 fclean: clean
-	rm -f $(NAME)
+	@rm -f $(NAME)
 
 re: fclean all
 

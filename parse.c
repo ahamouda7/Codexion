@@ -8,7 +8,7 @@ static int	parse_number(const char *text, int *result)
 	value = 0;
 	if (*text == '+')
 		text++;
-	if (*text == '\0')
+	if (!*text)
 		return (0);
 	while (*text)
 	{
@@ -39,7 +39,8 @@ int	parse_arguments(int argc, char **argv, t_config *config)
 {
 	if (argc != 9)
 		return (0);
-	if (!parse_number(argv[1], &config->number_of_coders)
+	if (
+		!parse_number(argv[1], &config->number_of_coders)
 		|| config->number_of_coders == 0
 		|| !parse_number(argv[2], &config->time_to_burnout)
 		|| !parse_number(argv[3], &config->time_to_compile)
@@ -47,7 +48,9 @@ int	parse_arguments(int argc, char **argv, t_config *config)
 		|| !parse_number(argv[5], &config->time_to_refactor)
 		|| !parse_number(argv[6], &config->number_of_compiles_required)
 		|| !parse_number(argv[7], &config->dongle_cooldown)
-		|| !parse_scheduler(argv[8], &config->scheduler))
+		|| !parse_scheduler(argv[8], &config->scheduler)
+	)
 		return (0);
 	return (1);
 }
+
