@@ -1,6 +1,6 @@
 #include "codexion.h"
 
-static void	print_config(const t_config config)
+static void	print_config(t_config config)
 {
 	printf("Configuration accepted:\n");
 	printf("coders: %d\n", config.number_of_coders);
@@ -26,6 +26,10 @@ int	main(int argc, char **argv)
 		return (1);
 	}
 	print_config(config);
+	if (!run_simulation(config))
+	{
+		fprintf(stderr, "Error: could not run coder threads\n");
+		return (1);
+	}
 	return (0);
 }
-

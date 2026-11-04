@@ -2,8 +2,12 @@
 # define CODEXION_H
 
 # include <limits.h>
+# include <pthread.h>
+# include <stdint.h>
 # include <stdio.h>
+# include <stdlib.h>
 # include <string.h>
+# include <sys/time.h>
 
 typedef enum e_scheduler
 {
@@ -23,6 +27,22 @@ typedef struct s_config
 	t_scheduler	scheduler;
 }	t_config;
 
+typedef struct s_simulation
+{
+	t_config			config;
+	long long			start_ms;
+	pthread_mutex_t		print_mutex;
+}	t_simulation;
+
+typedef struct s_coder
+{
+	int				id;
+	pthread_t		thread;
+	t_simulation	*simulation;
+}	t_coder;
+
 int	parse_arguments(int argc, char **argv, t_config *config);
+int	run_simulation(t_config config);
+long long	current_time_ms(void);
 
 #endif
