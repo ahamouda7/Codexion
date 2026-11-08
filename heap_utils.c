@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   heap_utils.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: your_login <your_login@student.42.fr>     +#+  +:+       +#+         */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/11/08 12:00:00 by your_login        #+#    #+#             */
+/*   Updated: 2026/11/08 12:00:00 by your_login       ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "heap_internal.h"
 
 int	request_before(const t_heap *heap, const t_request *a, const t_request *b)

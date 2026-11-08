@@ -1,52 +1,72 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   monitor.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: your_login <your_login@student.42.fr>     +#+  +:+       +#+         */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/11/08 12:00:00 by your_login        #+#    #+#             */
+/*   Updated: 2026/11/08 12:00:00 by your_login       ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "codexion.h"
 
-static long long	check_coders(t_simulation *sim, long long now)
+static t_coder	*earliest_coder(t_simulation *sim)
 {
-	long long	deadline;
-	long long	first;
-	int			i;
+	t_coder	*first;
+	int		i;
 
-	i = 0;
-	first = LLONG_MAX;
+	first = &sim->coders[0];
+	i = 1;
 	while (i < sim->config.number_of_coders)
 	{
-		deadline = sim->start_ms + sim->coders[i].last_compile
-			+ sim->config.time_to_burnout;
-		if (now >= deadline)
-		{
-			log_state(&sim->coders[i], "burned out", now);
-			sim->stopped = 1;
-			pthread_cond_broadcast(&sim->changed);
-			return (0);
-		}
-		if (deadline < first)
-			first = deadline;
+		if (sim->coders[i].last_compile < first->last_compile)
+			first = &sim->coders[i];
 		i++;
 	}
 	return (first);
+}
+
+static void	check_coders(t_simulation *sim, long long now)
+{
+	t_coder		*first;
+	long long	deadline;
+
+	first = earliest_coder(sim);
+	deadline = sim->start_ms + first->last_compile
+		+ sim->config.time_to_burnout;
+	if (now >= deadline)
+	{
+		sim->stopped = 1;
+		log_state(first, "burned out", now);
+		pthread_cond_broadcast(&sim->changed);
+	}
+	else if (deadline != sim->next_deadline)
+	{
+		sim->next_deadline = deadline;
+		pthread_cond_broadcast(&sim->changed);
+	}
 }
 
 void	*monitor_routine(void *arg)
 {
 	t_simulation	*sim;
 	long long		now;
-	long long		deadline;
 
 	sim = (t_simulation *)arg;
 	pthread_mutex_lock(&sim->state_mutex);
 	while (!sim->started && !sim->stopped)
-		pthread_cond_wait(&sim->changed, &sim->state_mutex);
+		wait_for_signal(sim);
 	while (!sim->stopped)
 	{
 		now = current_time_ms();
 		if (now < 0)
-		{
 			fail_simulation(sim);
-			break ;
-		}
-		deadline = check_coders(sim, now);
+		else
+			check_coders(sim, now);
 		if (!sim->stopped)
-			wait_until(sim, deadline);
+			wait_until(sim, sim->next_deadline);
 	}
 	pthread_mutex_unlock(&sim->state_mutex);
 	return (NULL);

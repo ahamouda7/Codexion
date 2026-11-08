@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   scheduler.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: your_login <your_login@student.42.fr>     +#+  +:+       +#+         */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/11/08 12:00:00 by your_login        #+#    #+#             */
+/*   Updated: 2026/11/08 12:00:00 by your_login       ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "codexion.h"
 
 static int	wait_alone(t_coder *coder)
@@ -6,8 +18,8 @@ static int	wait_alone(t_coder *coder)
 	long long		now;
 
 	sim = coder->simulation;
-	now = current_time_ms();
-	if (now >= 0 && now - sim->start_ms < sim->config.time_to_burnout)
+	now = simulation_time(sim);
+	if (!sim->stopped)
 	{
 		pthread_mutex_lock(&coder->first_dongle->mutex);
 		coder->first_dongle->in_use = 1;
@@ -15,7 +27,10 @@ static int	wait_alone(t_coder *coder)
 		log_state(coder, "has taken a dongle", now);
 	}
 	while (!sim->stopped)
-		pthread_cond_wait(&sim->changed, &sim->state_mutex);
+		wait_for_signal(sim);
+	pthread_mutex_lock(&coder->first_dongle->mutex);
+	coder->first_dongle->in_use = 0;
+	pthread_mutex_unlock(&coder->first_dongle->mutex);
 	return (0);
 }
 
@@ -45,13 +60,11 @@ static int	wait_for_pair(t_coder *coder)
 	sim = coder->simulation;
 	while (!sim->stopped)
 	{
-		now = current_time_ms();
-		if (now < 0)
+		now = simulation_time(sim);
+		if (sim->stopped)
 			break ;
 		lock_pair(coder);
-		ready = (now - sim->start_ms < coder->last_compile
-				+ sim->config.time_to_burnout
-				&& pair_ready(coder, now - sim->start_ms));
+		ready = pair_ready(coder, now - sim->start_ms);
 		if (ready)
 			claim_pair(coder, now);
 		unlock_pair(coder);

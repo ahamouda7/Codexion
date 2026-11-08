@@ -1,10 +1,22 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   coder.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: your_login <your_login@student.42.fr>     +#+  +:+       +#+         */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/11/08 12:00:00 by your_login        #+#    #+#             */
+/*   Updated: 2026/11/08 12:00:00 by your_login       ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "codexion.h"
 
 static void	wait_for_start(t_simulation *sim)
 {
 	pthread_mutex_lock(&sim->state_mutex);
 	while (!sim->started && !sim->stopped)
-		pthread_cond_wait(&sim->changed, &sim->state_mutex);
+		wait_for_signal(sim);
 	pthread_mutex_unlock(&sim->state_mutex);
 }
 

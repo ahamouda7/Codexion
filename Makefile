@@ -1,7 +1,9 @@
 NAME = codexion
 CC = cc
 CFLAGS = -Wall -Wextra -Werror -pthread
-SRC = main.c parse.c simulation.c setup.c time.c heap.c heap_push.c heap_pop.c heap_utils.c dongles.c coder.c scheduler.c queue.c monitor.c wait.c phase.c
+SRC = main.c parse.c setup.c simulation.c dongles.c coder.c phase.c \
+	scheduler.c queue.c heap.c heap_push.c heap_pop.c heap_utils.c \
+	monitor.c wait.c time.c log.c
 OBJ = $(SRC:.c=.o)
 
 all: $(NAME)
@@ -18,6 +20,7 @@ clean:
 fclean: clean
 	rm -f $(NAME)
 
-re: fclean all
+re: fclean
+	$(MAKE) all
 
 .PHONY: all clean fclean re

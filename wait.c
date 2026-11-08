@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   wait.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: your_login <your_login@student.42.fr>     +#+  +:+       +#+         */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/11/08 12:00:00 by your_login        #+#    #+#             */
+/*   Updated: 2026/11/08 12:00:00 by your_login       ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "codexion.h"
 
 void	fail_simulation(t_simulation *sim)
@@ -5,6 +17,29 @@ void	fail_simulation(t_simulation *sim)
 	sim->failed = 1;
 	sim->stopped = 1;
 	pthread_cond_broadcast(&sim->changed);
+}
+
+void	wait_for_signal(t_simulation *sim)
+{
+	if (pthread_cond_wait(&sim->changed, &sim->state_mutex) != 0)
+		fail_simulation(sim);
+}
+
+/* Called with state_mutex locked; let the monitor handle expired deadlines. */
+long long	simulation_time(t_simulation *sim)
+{
+	long long	now;
+
+	now = current_time_ms();
+	while (!sim->stopped && now >= sim->next_deadline)
+	{
+		pthread_cond_broadcast(&sim->changed);
+		wait_for_signal(sim);
+		now = current_time_ms();
+	}
+	if (now < 0)
+		fail_simulation(sim);
+	return (now);
 }
 
 void	wait_until(t_simulation *sim, long long target)
@@ -38,16 +73,6 @@ void	wait_for_change(t_coder *coder, long long now)
 		next = second;
 	if (next != LLONG_MAX)
 		wait_until(sim, next);
-	else if (pthread_cond_wait(&sim->changed, &sim->state_mutex) != 0)
-		fail_simulation(sim);
-}
-
-void	log_state(t_coder *coder, const char *message, long long now)
-{
-	t_simulation	*sim;
-
-	sim = coder->simulation;
-	pthread_mutex_lock(&sim->print_mutex);
-	printf("%lld %d %s\n", now - sim->start_ms, coder->id, message);
-	pthread_mutex_unlock(&sim->print_mutex);
+	else
+		wait_for_signal(sim);
 }

@@ -1,29 +1,25 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   phase.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: your_login <your_login@student.42.fr>     +#+  +:+       +#+         */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/11/08 12:00:00 by your_login        #+#    #+#             */
+/*   Updated: 2026/11/08 12:00:00 by your_login       ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "codexion.h"
 
-static int	wait_for_deadline(t_coder *coder, long long now)
-{
-	t_simulation	*sim;
-
-	sim = coder->simulation;
-	if (now - sim->start_ms < coder->last_compile + sim->config.time_to_burnout)
-		return (1);
-	pthread_cond_broadcast(&sim->changed);
-	while (!sim->stopped)
-		pthread_cond_wait(&sim->changed, &sim->state_mutex);
-	return (0);
-}
-
-static long long	wait_for_end(t_simulation *sim, long long now,
+static void	wait_for_end(t_simulation *sim, long long now,
 		long long end)
 {
 	while (!sim->stopped && now < end)
 	{
 		wait_until(sim, end);
-		now = current_time_ms();
-		if (now < 0)
-			fail_simulation(sim);
+		now = simulation_time(sim);
 	}
-	return (now);
 }
 
 int	perform_phase(t_coder *coder, const char *message, int duration)
@@ -35,17 +31,13 @@ int	perform_phase(t_coder *coder, const char *message, int duration)
 
 	sim = coder->simulation;
 	pthread_mutex_lock(&sim->state_mutex);
-	now = current_time_ms();
-	if (now < 0)
-		fail_simulation(sim);
-	if (!sim->stopped && message && wait_for_deadline(coder, now))
+	now = simulation_time(sim);
+	if (!sim->stopped && message)
 		log_state(coder, message, now);
 	end = now + duration;
 	if (!message)
 		end = sim->start_ms + coder->last_compile + duration;
-	now = wait_for_end(sim, now, end);
-	if (!sim->stopped)
-		wait_for_deadline(coder, now);
+	wait_for_end(sim, now, end);
 	ok = !sim->stopped;
 	pthread_mutex_unlock(&sim->state_mutex);
 	return (ok);
@@ -58,8 +50,10 @@ int	finish_compile(t_coder *coder)
 
 	sim = coder->simulation;
 	pthread_mutex_lock(&sim->state_mutex);
+	simulation_time(sim);
 	release_dongles(coder);
-	if (!sim->stopped)
+	if (!sim->stopped
+		&& coder->compiles < sim->config.number_of_compiles_required)
 	{
 		coder->compiles++;
 		if (coder->compiles == sim->config.number_of_compiles_required)
