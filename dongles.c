@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   dongles.c                                          :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: ahamouda <ahamouda@student.1337.ma>        +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/11/08 09:22:40 by ahamouda          #+#    #+#             */
-/*   Updated: 2026/11/08 09:22:41 by ahamouda         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "codexion.h"
 
 static int	init_dongle(t_dongle *dongle, t_scheduler policy)
@@ -67,6 +55,8 @@ void	init_coder(t_coder *coder, t_simulation *sim, int index)
 {
 	coder->id = index + 1;
 	coder->simulation = sim;
+	coder->last_compile = 0;
+	coder->compiles = 0;
 	coder->first_dongle = &sim->dongles[index];
 	coder->second_dongle = NULL;
 	if (sim->config.number_of_coders == 1)

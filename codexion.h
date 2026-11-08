@@ -1,25 +1,15 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   codexion.h                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: ahamouda <ahamouda@student.1337.ma>        +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/11/08 09:22:47 by ahamouda          #+#    #+#             */
-/*   Updated: 2026/11/08 09:22:48 by ahamouda         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #ifndef CODEXION_H
 # define CODEXION_H
 
 # include <limits.h>
+# include <errno.h>
 # include <pthread.h>
 # include <stdint.h>
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
 # include <sys/time.h>
+# include <time.h>
 
 typedef enum e_scheduler
 {
@@ -67,7 +57,16 @@ typedef struct s_simulation
 	t_config			config;
 	long long			start_ms;
 	pthread_mutex_t		print_mutex;
+	pthread_mutex_t		state_mutex;
+	pthread_cond_t		changed;
+	pthread_t			monitor;
 	t_dongle			*dongles;
+	struct s_coder		*coders;
+	unsigned long long	next_order;
+	int					started;
+	int					stopped;
+	int					failed;
+	int					finished;
 }	t_simulation;
 
 typedef struct s_coder
@@ -77,6 +76,8 @@ typedef struct s_coder
 	t_simulation	*simulation;
 	t_dongle		*first_dongle;
 	t_dongle		*second_dongle;
+	long long		last_compile;
+	int				compiles;
 }	t_coder;
 
 int	parse_arguments(int argc, char **argv, t_config *config);
@@ -90,5 +91,21 @@ int			heap_pop(t_heap *heap, t_request *request);
 int			init_dongles(t_simulation *sim);
 void		destroy_dongles(t_simulation *sim, int count);
 void		init_coder(t_coder *coder, t_simulation *sim, int index);
+void		*coder_routine(void *arg);
+void		*monitor_routine(void *arg);
+int			take_dongles(t_coder *coder);
+void		release_dongles(t_coder *coder);
+void		wait_until(t_simulation *sim, long long target);
+void		wait_for_change(t_coder *coder, long long now);
+void		log_state(t_coder *coder, const char *message, long long now);
+int			perform_phase(t_coder *coder, const char *message, int duration);
+int			finish_compile(t_coder *coder);
+t_simulation	*create_simulation(t_config config);
+void			destroy_simulation(t_simulation *sim);
+void			lock_pair(t_coder *coder);
+void			unlock_pair(t_coder *coder);
+void			fail_simulation(t_simulation *sim);
+int			enqueue_request(t_coder *coder);
+int			pair_ready(t_coder *coder, long long now);
 
 #endif
