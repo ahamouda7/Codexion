@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   simulation.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ahamouda <ahamouda@student.1337.ma>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/11/08 09:21:36 by ahamouda          #+#    #+#             */
+/*   Updated: 2026/11/08 09:21:37 by ahamouda         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "codexion.h"
 
 static void	*coder_routine(void *arg)
@@ -43,8 +55,7 @@ static int	start_coders(t_simulation *sim, t_coder *coders)
 	i = 0;
 	while (i < sim->config.number_of_coders)
 	{
-		coders[i].id = i + 1;
-		coders[i].simulation = sim;
+		init_coder(&coders[i], sim, i);
 		if (pthread_create(&coders[i].thread, NULL, coder_routine,
 				&coders[i]) != 0)
 			break ;
@@ -64,6 +75,12 @@ static t_simulation	*create_simulation(t_config config)
 	sim->start_ms = current_time_ms();
 	if (sim->start_ms < 0 || pthread_mutex_init(&sim->print_mutex, NULL) != 0)
 	{
+		free(sim);
+		return (NULL);
+	}
+	if (!init_dongles(sim))
+	{
+		pthread_mutex_destroy(&sim->print_mutex);
 		free(sim);
 		return (NULL);
 	}
@@ -90,6 +107,7 @@ int	run_simulation(t_config config)
 	created = start_coders(sim, coders);
 	if (!join_coders(coders, created))
 		return (0);
+	destroy_dongles(sim, config.number_of_coders);
 	pthread_mutex_destroy(&sim->print_mutex);
 	free(sim);
 	free(coders);

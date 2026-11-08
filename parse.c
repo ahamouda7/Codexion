@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parse.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ahamouda <ahamouda@student.1337.ma>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/11/07 14:18:23 by ahamouda          #+#    #+#             */
+/*   Updated: 2026/11/08 09:22:10 by ahamouda         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "codexion.h"
 
 static int	parse_number(const char *text, int *result)
@@ -8,7 +20,7 @@ static int	parse_number(const char *text, int *result)
 	value = 0;
 	if (*text == '+')
 		text++;
-	if (!*text)
+	if (*text == '\0')
 		return (0);
 	while (*text)
 	{
@@ -53,4 +65,3 @@ int	parse_arguments(int argc, char **argv, t_config *config)
 		return (0);
 	return (1);
 }
-
