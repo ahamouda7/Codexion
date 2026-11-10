@@ -6,17 +6,17 @@
 /*   By: ahamouda <ahamouda@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/11/08 12:07:48 by ahamouda          #+#    #+#             */
-/*   Updated: 2026/11/10 10:26:18 by ahamouda         ###   ########.fr       */
+/*   Updated: 2026/11/10 16:08:27 by ahamouda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CODEXION_H
 # define CODEXION_H
 
-# include <limits.h> //
-# include <errno.h> //
+# include <limits.h>
+# include <errno.h>
 # include <pthread.h>
-# include <stdint.h> //
+# include <stdint.h>
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
