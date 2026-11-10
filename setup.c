@@ -45,7 +45,6 @@ t_simulation	*create_simulation(t_config config)
 	if (!sim)
 		return (NULL);
 	memset(sim, 0, sizeof(*sim));
-	
 	sim->config = config;
 	if ((size_t)config.number_of_coders > SIZE_MAX / sizeof(t_coder))
 		return (NULL);
