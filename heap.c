@@ -6,7 +6,7 @@
 /*   By: ahamouda <ahamouda@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/11/08 12:15:19 by ahamouda          #+#    #+#             */
-/*   Updated: 2026/11/08 16:20:17 by ahamouda         ###   ########.fr       */
+/*   Updated: 2026/11/10 09:30:33 by ahamouda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,6 @@
 
 int	heap_init(t_heap *heap, size_t capacity, t_scheduler policy)
 {
-	if (!heap || capacity == 0 || capacity > SIZE_MAX / sizeof(*heap->items))
-		return (0);
-	if (policy != FIFO && policy != EDF)
-		return (0);
 	heap->items = malloc(capacity * sizeof(*heap->items));
 	if (!heap->items)
 		return (0);
