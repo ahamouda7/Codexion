@@ -1,7 +1,4 @@
-*This project has been created as part of the 42 curriculum by ahamouda*
-
-> Before submitting: replace `your_login` here and in the C/header file headers
-> with your actual 42 login. This package does not know your login.
+*This project has been created as part of the 42 curriculum by ahamouda.*
 
 ## Description
 

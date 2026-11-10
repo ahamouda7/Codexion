@@ -6,41 +6,50 @@
 /*   By: ahamouda <ahamouda@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/11/08 12:09:31 by ahamouda          #+#    #+#             */
-/*   Updated: 2026/11/08 12:09:32 by ahamouda         ###   ########.fr       */
+/*   Updated: 2026/11/09 18:43:44 by ahamouda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 
-static int	parse_number(const char *text, int *result)
+static int	parse_number(const char *str, int *nbr)
 {
 	int	value;
 	int	digit;
 
 	value = 0;
-	if (*text == '+')
-		text++;
-	if (*text == '\0')
+	if (*str == '+')
+		str++;
+	if (!*str)
 		return (0);
-	while (*text)
+	while (*str)
 	{
-		if (*text < '0' || *text > '9')
+		if (*str < '0' || *str > '9')
 			return (0);
-		digit = *text - '0';
+		digit = *str - '0';
 		if (value > (INT_MAX - digit) / 10)
 			return (0);
 		value = value * 10 + digit;
-		text++;
+		str++;
 	}
-	*result = value;
+	*nbr = value;
 	return (1);
 }
 
-static int	parse_scheduler(const char *text, t_scheduler *scheduler)
+static int	parse_scheduler(const char *str, t_scheduler *scheduler)
 {
-	if (strcmp(text, "fifo") == 0)
+	char	*s;
+
+	s = (char *)str;
+	while (*s)
+	{
+		if (*s >= 'A' && *s <= 'Z')
+			*s = *s + 32;
+		s++;
+	}
+	if (strcmp(str, "fifo") == 0)
 		*scheduler = FIFO;
-	else if (strcmp(text, "edf") == 0)
+	else if (strcmp(str, "edf") == 0)
 		*scheduler = EDF;
 	else
 		return (0);
@@ -51,7 +60,8 @@ int	parse_arguments(int argc, char **argv, t_config *config)
 {
 	if (argc != 9)
 		return (0);
-	if (!parse_number(argv[1], &config->number_of_coders)
+	if (
+		!parse_number(argv[1], &config->number_of_coders)
 		|| config->number_of_coders == 0
 		|| !parse_number(argv[2], &config->time_to_burnout)
 		|| !parse_number(argv[3], &config->time_to_compile)
@@ -59,7 +69,8 @@ int	parse_arguments(int argc, char **argv, t_config *config)
 		|| !parse_number(argv[5], &config->time_to_refactor)
 		|| !parse_number(argv[6], &config->number_of_compiles_required)
 		|| !parse_number(argv[7], &config->dongle_cooldown)
-		|| !parse_scheduler(argv[8], &config->scheduler))
+		|| !parse_scheduler(argv[8], &config->scheduler)
+	)
 		return (0);
 	return (1);
 }

@@ -6,7 +6,7 @@
 /*   By: ahamouda <ahamouda@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/11/08 12:10:05 by ahamouda          #+#    #+#             */
-/*   Updated: 2026/11/08 12:10:06 by ahamouda         ###   ########.fr       */
+/*   Updated: 2026/11/09 18:41:25 by ahamouda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,13 +41,14 @@ t_simulation	*create_simulation(t_config config)
 {
 	t_simulation	*sim;
 
-	if ((size_t)config.number_of_coders > SIZE_MAX / sizeof(t_coder))
-		return (NULL);
 	sim = malloc(sizeof(*sim));
 	if (!sim)
 		return (NULL);
 	memset(sim, 0, sizeof(*sim));
+	
 	sim->config = config;
+	if ((size_t)config.number_of_coders > SIZE_MAX / sizeof(t_coder))
+		return (NULL);
 	sim->coders = malloc(sizeof(t_coder) * (size_t)config.number_of_coders);
 	if (!sim->coders || !init_locks(sim))
 	{
