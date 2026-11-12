@@ -65,9 +65,14 @@ static int	launch_threads(t_simulation *sim)
 	}
 	monitor_ok = 0;
 	if (i == sim->config.number_of_coders)
-		monitor_ok = (pthread_create(&sim->monitor, NULL,
-					monitor_routine, sim) == 0
-				);
+		monitor_ok = (
+			pthread_create(
+				&sim->monitor,
+				NULL,
+				monitor_routine,
+				sim
+			) == 0
+		);
 	start_simulation(sim, i, monitor_ok);
 	join_coders(sim, i);
 	if (monitor_ok)

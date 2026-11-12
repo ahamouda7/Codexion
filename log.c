@@ -42,7 +42,6 @@ static int	write_line(char *line, int length)
 	return (1);
 }
 
-/* Messages are the five fixed subject strings; the caller holds state_mutex. */
 void	log_state(t_coder *coder, const char *message, long long now)
 {
 	t_simulation	*sim;
