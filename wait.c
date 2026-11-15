@@ -25,7 +25,6 @@ void	wait_for_signal(t_simulation *sim)
 		fail_simulation(sim);
 }
 
-/* Called with state_mutex locked; let the monitor handle expired deadlines. */
 long long	simulation_time(t_simulation *sim)
 {
 	long long	now;
